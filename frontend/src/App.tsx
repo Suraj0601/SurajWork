@@ -1,25 +1,23 @@
-import './App.css'
-import Login from "./pages/Login";
-import Register from "./pages/Register";
-import Home from "./pages/Home";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { ChatProvider, useChat } from "./context/ChatContext";
+import ChatLayout from "./pages/ChatLayout";
+import LoginLayout from "./pages/LoginLayout";
+// import ChatLayout from "./pages/ChatLayout";
 
-const App: React.FC = () => {
+function AppContent() {
+  const { user, login } = useChat();
+
+  const handleRegister = () => {
+
+  };
+
+  if (!user) return <LoginLayout handleLogin={login} handleRegister={handleRegister} />;
+  return <ChatLayout />;
+}
+
+export default function App() {
   return (
-    <Router>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        {/* 👇 Login page route */}
-        <Route path="/login" element={<Login />} />
-        {/* 👇 Register page route */}
-        <Route path="/register" element={<Register />} />
-        
-
-        
-
-      </Routes>
-    </Router>
+    <ChatProvider>
+      <AppContent />
+    </ChatProvider>
   );
-};
-
-export default App
+}
