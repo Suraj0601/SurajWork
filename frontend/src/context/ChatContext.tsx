@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useRef } from "react";
 import type { Conversation, LoginData, User } from "./../types/types";
+import { BASE_URL } from "../utils/urls";
 import { uid } from "../utils/uid";
 import { formatTime } from "../utils/time";
 import { MOCK_CONVERSATIONS, MOCK_USERS } from "./../mock";
@@ -66,15 +67,24 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
   
   async function login(loginData: LoginData) {
 
-
-      const response = await axios.post<ApiResponse>("/auth/login", loginData, {
+    try {
+      const response = await axios.post<ApiResponse>(BASE_URL+"/api/auth/login", loginData, {
         withCredentials: true,
       });
-      console.log("response >>> ", response);
+
       const data: ApiResponse = successHandler(response.data, {
         notifyOnSuccess: true,
       });
-      console.log("data >>> ", data);
+      console.log('data >> ', data);
+
+      const user = data.data;
+
+      setUser({ id: "me", name: user.email.split("@")[0], email: user.email, avatar: "", online: true });
+
+    } catch (error) {
+      console.log('error >> ', error); 
+    }
+
     // const response = await fetch("https://api/auth/login", {
     //   method: "POST",
     //   headers: {
@@ -85,11 +95,19 @@ export function ChatProvider({ children }: { children: React.ReactNode }) {
     //  if (response.ok && data.status === "success") {
     // setUser({ id: "me", name: email.split("@")[0], email, avatar: "", online: true });
     //  }
-    console.log(response);
   }
 
-  function logout() {
-    setUser(null);
+  async function logout() {
+    try {
+      const response = await axios.get(BASE_URL+"/api/auth/logout", {
+        withCredentials: true
+      });
+
+      setUser(null);
+      
+    } catch (error) {
+      console.log('errror > ', error);
+    }
   }
 
   function selectConversation(id: string | number) {

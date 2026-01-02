@@ -36,8 +36,15 @@ export const registerUser = async (req: Request, res: Response) => {
       email: user.email
     });
 
+    res.cookie("access_token", token, {
+      httpOnly: true,
+      secure: false,
+      sameSite: "lax",
+      maxAge: 15*60*1000,
+    });
+
     return sendResponse(res, 201, true,
-      { email: user.email, token: token },
+      { userId: user.id, name: name, email: user.email },
       "User registered successfully"
     );
   } catch (error) {
@@ -64,12 +71,18 @@ export const loginUser = async (req: Request, res: Response) => {
         name: user.name,
         email: user.email
       });
+
+      res.cookie("access_token", token, {
+        httpOnly: true,
+        secure: false,
+        sameSite: "lax",
+        maxAge: 15*60*1000,
+      });
       
       return sendResponse(res, 200, true, {
-          id: user.id,
+          userId: user.id,
           email: user.email,
           name: user.name,
-          token
         },
         "Login successful"
       );
@@ -82,10 +95,6 @@ export const loginUser = async (req: Request, res: Response) => {
 };
 
 export const logoutUser = (req: Request, res: Response) => {
-  const err = true;
-  if (err) {
-    return sendResponse(res, 500, false, null, "Logout failed");
-  }
-  return sendResponse(res, 200, true, null, "Logout successful");
-  
+  res.clearCookie("access_token");
+  sendResponse(res, 200, true, {}, "Logged Out");
 };

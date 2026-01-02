@@ -1,5 +1,9 @@
+import { useEffect, useState } from "react";
 import { useChat } from "../context/ChatContext";
 import type { User, Conversation } from "../types/types";
+import axios from "axios";
+import type { ApiResponse } from "../requests/types";
+import { BASE_URL } from "../utils/urls";
 
 interface ConversationsProps {
   activeConvId: number | string | null;
@@ -13,6 +17,20 @@ export default function Conversations({
   setShowUserSearch,
   logout,
 }: ConversationsProps) {
+
+  const [profile, setProfile] = useState({});
+
+  useEffect(() => {
+    try {
+      const response = axios.get<ApiResponse>(BASE_URL+"/api/profile", {
+        withCredentials: true
+      });
+
+      console.log('response > ', response);
+    } catch (error) {
+      console.log('error > ', error);
+    }
+  }, []);
 
 
   const { user, users, conversations, filteredConversations, leftPaneSearch, setLeftPaneSearch, selectConversation } = useChat();
