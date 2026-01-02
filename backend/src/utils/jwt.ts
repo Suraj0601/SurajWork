@@ -8,8 +8,12 @@ export interface JwtPayload {
   email: string;
 }
 
-export function generateToken(payload: JwtPayload): string {
+export const generateToken = (payload: JwtPayload): string => {
   return jwt.sign(payload, JWT_SECRET, {
-    expiresIn: "1h"
+    expiresIn: "15m",
   });
-}
+};
+
+export const verifyToken = (token: string): JwtPayload => {
+  return jwt.verify(token, JWT_SECRET) as JwtPayload;
+};

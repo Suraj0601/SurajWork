@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { JwtPayload } from "../utils/jwt";
+import { JwtPayload, verifyToken } from "../utils/jwt";
 import sendResponse from "../utils/Response";
 
 const JWT_SECRET = process.env.JWT_SECRET as string;
@@ -14,19 +14,18 @@ export function authenticate(
   res: Response,
   next: NextFunction
 ) {
-  const authHeader = req.headers.authorization;
 
-  if (!authHeader) {
-    return sendResponse(res, 401, false, { message: "Token missing"});
+  const token: string = req.cookies.access_token;
+
+  if (!token) {
+    return res.status(401).json({ message: "Unauthorized" });
   }
 
-  const token = authHeader.split(" ")[1];
-
   try {
-    const decoded = jwt.verify(token, JWT_SECRET) as JwtPayload;
+    const decoded = verifyToken(token);
     req.user = decoded;
     next();
-  } catch (error) {
-    return sendResponse(res, 401, false, { message: "Invalid token" });
+  } catch {
+    return res.status(401).json({ message: "Invalid token" });
   }
 }
